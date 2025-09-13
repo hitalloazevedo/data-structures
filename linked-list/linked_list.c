@@ -113,6 +113,4 @@ void ls_reverse(t_node ** head){
     }
 
     *head = aux2;
-
-
 }
