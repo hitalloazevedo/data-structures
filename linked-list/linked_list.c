@@ -3,36 +3,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-t_linked_list * ls_init(){
-    t_linked_list * ptr = (t_linked_list*)malloc(sizeof(t_linked_list));
-    ptr->size = 0;
-    ptr->head = NULL;
-    return ptr;
+t_node * ls_init(){
+    t_node * head = (t_node*)malloc(sizeof(t_node));
+    head = NULL;
+    return head;
 }
 
 t_node * ls_new_node(int value){
     t_node * node = (t_node*)malloc(sizeof(t_node));
-    node->value = (int*)malloc(sizeof(int));
-    *node->value = value;
+    node->value = value;
     node->next = NULL;
     return node;
 }
 
-void ls_push_front(t_linked_list * ls, t_node * new_node){
-    new_node->next = ls->head;
-    ls->head = new_node;
-    ls->size++;
+void ls_push_front(t_node ** head, t_node * new_node){
+    new_node->next = *head;
+    *head = new_node;
 }
 
-void ls_push_back(t_linked_list * ls, t_node * new_node){
-
-    if (ls->head == NULL){
-        ls->head = new_node;
-        ls->size++;
+void ls_push_back(t_node ** head, t_node * new_node){
+    if (*head == NULL){
+        *head = new_node;
         return;
     }
 
-    t_node * current = ls->head;
+    t_node * current = *head;
     while (current != NULL) {
         if (current->next == NULL){
             current->next = new_node;
@@ -40,21 +35,19 @@ void ls_push_back(t_linked_list * ls, t_node * new_node){
         }
         current = current->next;
     }
-    ls->size++;
 }
 
-void ls_print(t_linked_list * ls){
-
-    if (ls->size == 0){
-        printf("linked list is empty.\n");
+void ls_print(t_node * head){
+    if (head == NULL){
+        printf("error: list is empty.");
         return;
     }
 
-    t_node * current = ls->head;
+    t_node * current = head;
     int i = 0;
     while (current != NULL) {
-        printf("%d", *current->value);
-        if (i != ls->size - 1){
+        printf("(%d)", current->value);
+        if (current->next != NULL){
             printf("->");
         }
         current = current->next;
@@ -63,30 +56,63 @@ void ls_print(t_linked_list * ls){
     printf("\n");
 }
 
-void ls_pop(t_linked_list * ls){
-    
-    if (ls->size == 0){
+void ls_pop(t_node ** head){
+    if (*head == NULL){
         printf("cannot pop linked list is empty.\n");
         return;
     }
-
-    if (ls->size == 1){
-        ls->head = NULL;
-        ls->size = 0;
-        return;
-    }
     
-    t_node * current = ls->head;
-    int i = 0;
-    while (i < ls->size) {
-        if (i == ls->size - 2){
-            free(current->next);
-            current->next = NULL;
+    t_node * current = *head;
+    t_node * aux = NULL;
+    while (current != NULL) {
+        if (current->next == NULL){
+            free(current);
+            if (*head == current){
+                *head = NULL;
+            }
+            if (aux != NULL){
+                aux->next = NULL;
+            }
             break;
         }
+        aux = current;
         current = current->next;
-        i++;
     }
-    ls->size--;  
 }
 
+void ls_reverse(t_node ** head){
+    if (*head == NULL){
+        printf("error: cannot invert empty list\n");
+        return;
+    }
+
+    t_node * aux1 = *head;
+    t_node * aux2 = NULL;
+    t_node * aux3 = NULL;
+
+    if ((*head)->next == NULL){
+        return;
+    }
+
+    aux2 = (*head)->next;
+    if ((*head)->next->next == NULL){
+        *head = aux2;
+        (*head)->next = aux1;
+        aux1->next = NULL;
+        return;
+    }
+
+    aux3 = (*head)->next->next;
+    aux1->next = NULL;
+    while(aux3 != NULL){
+        aux2->next = aux1;
+        aux1 = aux2;
+        aux2 = aux3;
+        aux3 = aux3->next;
+        aux2->next = aux1;
+    }
+
+    *head = aux2;
+
+
+}
